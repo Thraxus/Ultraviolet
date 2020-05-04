@@ -103,7 +103,7 @@ namespace Ultraviolet.Thraxus
 		{
 			base.UpdateBeforeSimulation();
 			_tickCounter++;
-			if(_tickCounter % GeneralSettings.TicksPerMinute == 0)
+			if (_tickCounter % GeneralSettings.TicksPerMinute == 0)
 				TriggerUpdate();
 		}
 

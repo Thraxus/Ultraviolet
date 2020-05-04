@@ -50,6 +50,8 @@ namespace Ultraviolet.Thraxus.Models
 
 		private GridOwnerType _ownerType;
 
+		private bool _allowEvaluation;
+
 		private bool _hasPlayerSmallOwner;
 
 		private bool _isClosed;
@@ -71,6 +73,8 @@ namespace Ultraviolet.Thraxus.Models
 		private List<MyEntity> _playersInRange = new List<MyEntity>();
 		
 		private int BlockCount => _thisCubeGrid.CubeBlocks.Count;
+
+		private string _closeReason = "None";
 		
 		public EntityModel(IMyEntity thisEntity, ulong tick)
 		{
@@ -84,7 +88,7 @@ namespace Ultraviolet.Thraxus.Models
 			_thisCubeGrid.OnBlockAdded += BlockCountChanged;
 			_thisCubeGrid.OnBlockRemoved += BlockCountChanged;
 			_thisCubeGrid.OnGridSplit += GridSplit;
-			_lastPassInformation = new GridInfo() { LinearVelocity = LinearVelocity, Position = Position, ConsecutiveHits = 0};
+			_lastPassInformation = new GridInfo() { LinearVelocity = LinearVelocity, Position = Position, ConsecutiveHits = 0, BlockCount = BlockCount};
 		}
 
 		public void Initialize()
@@ -103,7 +107,7 @@ namespace Ultraviolet.Thraxus.Models
 			_thisCubeGrid.OnBlockAdded -= BlockCountChanged;
 			_thisCubeGrid.OnBlockRemoved -= BlockCountChanged;
 			_thisCubeGrid.OnGridSplit -= GridSplit;
-			WriteToLog($"Close", $"Oh, bye! {BlockCount} | {_ownerType} | {_gridType}", LogType.General);
+			WriteToLog($"Close", $"Oh, bye! {_closeReason} | {BlockCount} | {_ownerType} | {_gridType} | {_lastPassInformation}", LogType.General);
 			OnClose?.Invoke(ThisId);
 		}
 
@@ -117,7 +121,13 @@ namespace Ultraviolet.Thraxus.Models
 			if (_isClosed) return;
 			if (_ownerType == GridOwnerType.Player) return;
 			if (_gridType == GridType.Station || _gridType == GridType.Projection) return;
-			if (tickCounter < _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute)) return;
+
+			if(!_allowEvaluation)
+				if (tickCounter < _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute)) return;
+
+			_allowEvaluation = true;
+
+			WriteToLog("RunEvaluation", $"Evaluating {ThisId} | {_lastPassInformation}", LogType.General);
 
 			if (tickCounter == _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute))
 			{
@@ -134,27 +144,30 @@ namespace Ultraviolet.Thraxus.Models
 
 			if (tickCounter == _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute) + 30 && _hasPlayerSmallOwner && UserSettings.UseSuperAggressiveCleanup)
 				RunSuperAggressiveCleanup();
+			_allowEvaluation = false;
 		}
 
 		private void RunDebrisCleanup()
 		{
 			if (!AnyPlayersInRange(UserSettings.DebrisCleanupRange)) return;
 			if (_lastPassInformation.ConsecutiveHits < UserSettings.PassesBeforeStandardCleanup) return;
+			_closeReason = "Debris";
 			Close();
 		}
 
-		private bool RunStandardCleanup()
+		private void RunStandardCleanup()
 		{
-			if (!AnyPlayersInRange(UserSettings.StandardCleanupRange)) return false;
-			if (_lastPassInformation.ConsecutiveHits < UserSettings.PassesBeforeStandardCleanup) return false;
+			if (!AnyPlayersInRange(UserSettings.StandardCleanupRange)) return;
+			if (_lastPassInformation.ConsecutiveHits < UserSettings.PassesBeforeStandardCleanup) return;
+			_closeReason = "Standard";
 			Close();
-			return true;
 		}
 
 		private void RunAggressiveCleanup()
 		{
 			if (!AnyPlayersInRange(UserSettings.AggressiveCleanupRange)) return;
 			if (_lastPassInformation.ConsecutiveHits < UserSettings.PassesBeforeAggressiveCleanup) return;
+			_closeReason = "Aggressive";
 			Close();
 		}
 
@@ -162,6 +175,7 @@ namespace Ultraviolet.Thraxus.Models
 		{
 			if (!AnyPlayersInRange(UserSettings.SuperAggressiveCleanupRange)) return;
 			if (_lastPassInformation.ConsecutiveHits < UserSettings.PassesBeforeSuperAggressiveCleanup) return;
+			_closeReason = "SuperAggressive";
 			Close();
 		}
 
@@ -189,6 +203,7 @@ namespace Ultraviolet.Thraxus.Models
 			_lastPassInformation.Position = Position;
 			_lastPassInformation.LinearVelocity = LinearVelocity;
 			_lastPassInformation.ConsecutiveHits = 0;
+			_lastPassInformation.BlockCount = BlockCount;
 			return false;
 		}
 
@@ -265,6 +280,12 @@ namespace Ultraviolet.Thraxus.Models
 		public Vector3 LinearVelocity;
 		public Vector3D Position;
 		public int ConsecutiveHits;
+		public int BlockCount;
+
+		public override string ToString()
+		{
+			return $"Linear Velocity: {LinearVelocity} | Position: {Position} | Consecutive Hits: {ConsecutiveHits} | Block Count: {BlockCount}";
+		}
 	}
 
 }
