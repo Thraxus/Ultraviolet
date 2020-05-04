@@ -88,7 +88,7 @@ namespace Ultraviolet.Thraxus.Models
 			_thisCubeGrid.OnBlockAdded += BlockCountChanged;
 			_thisCubeGrid.OnBlockRemoved += BlockCountChanged;
 			_thisCubeGrid.OnGridSplit += GridSplit;
-			_lastPassInformation = new GridInfo() { LinearVelocity = LinearVelocity, Position = Position, ConsecutiveHits = 0, BlockCount = BlockCount};
+			_lastPassInformation = new GridInfo() { LinearVelocity = LinearVelocity, Position = Position, ConsecutiveStandardHits = 0, ConsecutiveAggressiveHits = 0, BlockCount = BlockCount};
 		}
 
 		public void Initialize()
@@ -148,10 +148,10 @@ namespace Ultraviolet.Thraxus.Models
 		{
 			if (!AnyPlayersInRange(UserSettings.DebrisCleanupRange))
 			{
-				_lastPassInformation.ConsecutiveHits = 0;
+				_lastPassInformation.ConsecutiveStandardHits = 0;
 				return;
 			}
-			if (_lastPassInformation.ConsecutiveHits < UserSettings.PassesBeforeDebrisCleanup) return;
+			if (_lastPassInformation.ConsecutiveStandardHits < UserSettings.PassesBeforeDebrisCleanup) return;
 			_closeReason = "Debris";
 			Close();
 		}
@@ -160,10 +160,10 @@ namespace Ultraviolet.Thraxus.Models
 		{
 			if (!AnyPlayersInRange(UserSettings.StandardCleanupRange))
 			{
-				_lastPassInformation.ConsecutiveHits = 0;
+				_lastPassInformation.ConsecutiveStandardHits = 0;
 				return;
 			}
-			if (_lastPassInformation.ConsecutiveHits < UserSettings.PassesBeforeStandardCleanup) return;
+			if (_lastPassInformation.ConsecutiveStandardHits < UserSettings.PassesBeforeStandardCleanup) return;
 			_closeReason = "Standard";
 			Close();
 		}
@@ -172,10 +172,10 @@ namespace Ultraviolet.Thraxus.Models
 		{
 			if (!AnyPlayersInRange(UserSettings.AggressiveCleanupRange))
 			{
-				_lastPassInformation.ConsecutiveHits = 0;
+				_lastPassInformation.ConsecutiveAggressiveHits = 0;
 				return;
 			}
-			if (_lastPassInformation.ConsecutiveHits < UserSettings.PassesBeforeAggressiveCleanup) return;
+			if (_lastPassInformation.ConsecutiveAggressiveHits < UserSettings.PassesBeforeAggressiveCleanup) return;
 			_closeReason = "Aggressive";
 			Close();
 		}
@@ -184,10 +184,10 @@ namespace Ultraviolet.Thraxus.Models
 		{
 			if (!AnyPlayersInRange(UserSettings.SuperAggressiveCleanupRange))
 			{
-				_lastPassInformation.ConsecutiveHits = 0;
+				_lastPassInformation.ConsecutiveAggressiveHits = 0;
 				return;
 			}
-			if (_lastPassInformation.ConsecutiveHits < UserSettings.PassesBeforeSuperAggressiveCleanup) return;
+			if (_lastPassInformation.ConsecutiveAggressiveHits < UserSettings.PassesBeforeSuperAggressiveCleanup) return;
 			_closeReason = "SuperAggressive";
 			Close();
 		}
@@ -211,19 +211,22 @@ namespace Ultraviolet.Thraxus.Models
 		{
 			if (LinearVelocity == Vector3.Zero && _lastPassInformation.Position == Position)
 			{
-				_lastPassInformation.ConsecutiveHits++;
+				_lastPassInformation.ConsecutiveAggressiveHits++;
+				_lastPassInformation.ConsecutiveStandardHits++;
 				return true;
 			}
 
 			if (LinearVelocity == _lastPassInformation.LinearVelocity)
 			{
-				_lastPassInformation.ConsecutiveHits++;
+				_lastPassInformation.ConsecutiveAggressiveHits++;
+				_lastPassInformation.ConsecutiveStandardHits++;
 				return true;
 			}
 
 			_lastPassInformation.Position = Position;
 			_lastPassInformation.LinearVelocity = LinearVelocity;
-			_lastPassInformation.ConsecutiveHits = 0;
+			_lastPassInformation.ConsecutiveAggressiveHits = 0;
+			_lastPassInformation.ConsecutiveStandardHits = 0;
 			_lastPassInformation.BlockCount = BlockCount;
 			return false;
 		}
@@ -300,12 +303,13 @@ namespace Ultraviolet.Thraxus.Models
 	{
 		public Vector3 LinearVelocity;
 		public Vector3D Position;
-		public int ConsecutiveHits;
+		public int ConsecutiveAggressiveHits;
+		public int ConsecutiveStandardHits;
 		public int BlockCount;
 
 		public override string ToString()
 		{
-			return $"Linear Velocity: {LinearVelocity} | Position: {Position} | Consecutive Hits: {ConsecutiveHits} | Block Count: {BlockCount}";
+			return $"Linear Velocity: {LinearVelocity} | Position: {Position} | Consecutive Standard Hits: {ConsecutiveStandardHits} | Consecutive Aggressive Hits: {ConsecutiveAggressiveHits} | Block Count: {BlockCount}";
 		}
 	}
 
