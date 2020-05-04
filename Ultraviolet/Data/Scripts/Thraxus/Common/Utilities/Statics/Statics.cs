@@ -62,16 +62,21 @@ namespace Ultraviolet.Thraxus.Common.Utilities.Statics
 			return pruneList;
 		}
 
+		// This is broken as fuck
 		public static IEnumerable<MyEntity> DetectPlayersInSphere(Vector3D detectionCenter, double range, bool reportOrigin = false)
 		{
 			if (reportOrigin) AddGpsLocation($"DetectPlayersInSphere {range}", detectionCenter);
 
 			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
 			List<MyEntity> pruneList = new List<MyEntity>();
-			MyGamePruningStructure.GetAllTopMostEntitiesInSphere(ref pruneSphere, pruneList, MyEntityQueryType.Dynamic);
+			MyGamePruningStructure.GetAllTopMostEntitiesInSphere(ref pruneSphere, pruneList);
 			List<IMyPlayer> players = new List<IMyPlayer>();
-			MyAPIGateway.Multiplayer.Players.GetPlayers(players, x => !x.IsBot);
-			pruneList.RemoveAll(x => players.Any(y => y.IdentityId == x.EntityId));
+			MyAPIGateway.Multiplayer.Players.GetPlayers(players, x => ValidPlayer(x.IdentityId));
+			pruneList.RemoveAll(x => players.Any(y => y.IdentityId != x.EntityId));
+			foreach (MyEntity ent in pruneList)
+			{
+				AddGpsLocation($"DetectPlayersInSphere ({range}): {((IMyEntity)ent).DisplayName}", ((IMyEntity)ent).GetPosition());
+			}
 			return pruneList;
 		}
 

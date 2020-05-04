@@ -25,8 +25,13 @@
 		/// <summary>
 		/// Minutes before the cleanup routine will kick in 
 		/// </summary>
-		public static ulong NpcCleanupInterval = 6;
-		
+		public static ulong NpcCleanupInterval = 1;
+
+		/// <summary>
+		/// How many identical passes must a grid have before cleanup cleans it up
+		/// </summary>
+		public static int PassesBeforeDebrisCleanup = 3;
+
 		/// <summary>
 		/// How many identical passes must a grid have before cleanup cleans it up
 		/// </summary>

@@ -105,6 +105,12 @@ namespace Ultraviolet.Thraxus
 			_tickCounter++;
 			if (_tickCounter % GeneralSettings.TicksPerMinute == 0)
 				TriggerUpdate();
+			if (_tickCounter % GeneralSettings.TicksPerMinute == 10)
+				TriggerUpdate();
+			if (_tickCounter % GeneralSettings.TicksPerMinute == 20)
+				TriggerUpdate();
+			if (_tickCounter % GeneralSettings.TicksPerMinute == 30)
+				TriggerUpdate();
 		}
 
 		private void TriggerUpdate()

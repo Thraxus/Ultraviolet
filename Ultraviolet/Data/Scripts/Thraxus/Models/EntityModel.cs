@@ -122,42 +122,47 @@ namespace Ultraviolet.Thraxus.Models
 			if (_ownerType == GridOwnerType.Player) return;
 			if (_gridType == GridType.Station || _gridType == GridType.Projection) return;
 
-			if(!_allowEvaluation)
-				if (tickCounter < _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute)) return;
-
-			_allowEvaluation = true;
+			if (tickCounter < _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute)) return;
 
 			WriteToLog("RunEvaluation", $"Evaluating {ThisId} | {_lastPassInformation}", LogType.General);
 
+			if (!CompareConditionals()) return;
+			
 			if (tickCounter == _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute))
-			{
-				if (!CompareConditionals()) return;
 				if (_gridType == GridType.Debris)
 					RunDebrisCleanup();
-			}
-
+			
 			if (tickCounter == _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute) + 10 && !_hasPlayerSmallOwner)
 				RunStandardCleanup();
 
 			if (tickCounter == _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute) + 20 && !_hasPlayerSmallOwner)
 				RunAggressiveCleanup();
-
-			if (tickCounter == _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute) + 30 && _hasPlayerSmallOwner && UserSettings.UseSuperAggressiveCleanup)
-				RunSuperAggressiveCleanup();
-			_allowEvaluation = false;
+			
+			if (tickCounter != _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute) + 30 
+			    || !_hasPlayerSmallOwner 
+			    || !UserSettings.UseSuperAggressiveCleanup) return;
+			RunSuperAggressiveCleanup();
 		}
 
 		private void RunDebrisCleanup()
 		{
-			if (!AnyPlayersInRange(UserSettings.DebrisCleanupRange)) return;
-			if (_lastPassInformation.ConsecutiveHits < UserSettings.PassesBeforeStandardCleanup) return;
+			if (!AnyPlayersInRange(UserSettings.DebrisCleanupRange))
+			{
+				_lastPassInformation.ConsecutiveHits = 0;
+				return;
+			}
+			if (_lastPassInformation.ConsecutiveHits < UserSettings.PassesBeforeDebrisCleanup) return;
 			_closeReason = "Debris";
 			Close();
 		}
 
 		private void RunStandardCleanup()
 		{
-			if (!AnyPlayersInRange(UserSettings.StandardCleanupRange)) return;
+			if (!AnyPlayersInRange(UserSettings.StandardCleanupRange))
+			{
+				_lastPassInformation.ConsecutiveHits = 0;
+				return;
+			}
 			if (_lastPassInformation.ConsecutiveHits < UserSettings.PassesBeforeStandardCleanup) return;
 			_closeReason = "Standard";
 			Close();
@@ -165,7 +170,11 @@ namespace Ultraviolet.Thraxus.Models
 
 		private void RunAggressiveCleanup()
 		{
-			if (!AnyPlayersInRange(UserSettings.AggressiveCleanupRange)) return;
+			if (!AnyPlayersInRange(UserSettings.AggressiveCleanupRange))
+			{
+				_lastPassInformation.ConsecutiveHits = 0;
+				return;
+			}
 			if (_lastPassInformation.ConsecutiveHits < UserSettings.PassesBeforeAggressiveCleanup) return;
 			_closeReason = "Aggressive";
 			Close();
@@ -173,7 +182,11 @@ namespace Ultraviolet.Thraxus.Models
 
 		private void RunSuperAggressiveCleanup()
 		{
-			if (!AnyPlayersInRange(UserSettings.SuperAggressiveCleanupRange)) return;
+			if (!AnyPlayersInRange(UserSettings.SuperAggressiveCleanupRange))
+			{
+				_lastPassInformation.ConsecutiveHits = 0;
+				return;
+			}
 			if (_lastPassInformation.ConsecutiveHits < UserSettings.PassesBeforeSuperAggressiveCleanup) return;
 			_closeReason = "SuperAggressive";
 			Close();
@@ -182,8 +195,16 @@ namespace Ultraviolet.Thraxus.Models
 		private bool AnyPlayersInRange(int range)
 		{
 			_playersInRange.Clear();
-			_playersInRange = Statics.DetectPlayersInSphere(Position, range) as List<MyEntity>;
-			return _playersInRange != null && _playersInRange.Count > 0;
+			_playersInRange = Statics.DetectTopMostEntitiesInSphere(Position, range) as List<MyEntity>;
+			if (_playersInRange == null) return false;
+			bool playerFound = false;
+			foreach (MyEntity ent in _playersInRange)
+			{
+				if (!Statics.ValidPlayer(ent.EntityId)) continue;
+				playerFound = true;
+				break;
+			}
+			return playerFound;
 		}
 
 		private bool CompareConditionals()
