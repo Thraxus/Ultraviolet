@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Sandbox.Game.Entities;
 using Ultraviolet.Thraxus.Common.BaseClasses;
 using Ultraviolet.Thraxus.Common.DataTypes;
@@ -49,9 +50,7 @@ namespace Ultraviolet.Thraxus.Models
 		private readonly GridInfo _lastPassInformation;
 
 		private GridOwnerType _ownerType;
-
-		private bool _allowEvaluation;
-
+		
 		private bool _hasPlayerSmallOwner;
 
 		private bool _isClosed;
@@ -88,7 +87,8 @@ namespace Ultraviolet.Thraxus.Models
 			_thisCubeGrid.OnBlockAdded += BlockCountChanged;
 			_thisCubeGrid.OnBlockRemoved += BlockCountChanged;
 			_thisCubeGrid.OnGridSplit += GridSplit;
-			_lastPassInformation = new GridInfo() { LinearVelocity = LinearVelocity, Position = Position, ConsecutiveStandardHits = 0, ConsecutiveAggressiveHits = 0, BlockCount = BlockCount};
+			_lastPassInformation = new GridInfo() { LinearVelocity = LinearVelocity, Position = Position, BlockCount = BlockCount};
+			_lastPassInformation.ResetAll();
 		}
 
 		public void Initialize()
@@ -109,6 +109,7 @@ namespace Ultraviolet.Thraxus.Models
 			_thisCubeGrid.OnGridSplit -= GridSplit;
 			WriteToLog($"Close", $"Oh, bye! {_closeReason} | {BlockCount} | {_ownerType} | {_gridType} | {_lastPassInformation}", LogType.General);
 			OnClose?.Invoke(ThisId);
+			_thisCubeGrid.Close();
 		}
 
 		private void Close(IMyEntity unused)
@@ -116,65 +117,81 @@ namespace Ultraviolet.Thraxus.Models
 			Close();
 		}
 
-		public void RunEvaluation(ulong tickCounter)
+		private bool InvalidEvaluation(ulong tickCounter)
 		{
-			if (_isClosed) return;
-			if (_ownerType == GridOwnerType.Player) return;
-			if (_gridType == GridType.Station || _gridType == GridType.Projection) return;
+			if (_isClosed) return true;
+			if (_ownerType == GridOwnerType.Player) return true;
+			if (_gridType == GridType.Station || _gridType == GridType.Projection) return true;
+			return tickCounter < _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute);
+		}
 
-			if (tickCounter < _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute)) return;
-
-			WriteToLog("RunEvaluation", $"Evaluating {ThisId} | {_lastPassInformation}", LogType.General);
-
-			if (!CompareConditionals()) return;
-			
-			if (tickCounter == _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute))
-				if (_gridType == GridType.Debris)
+		public void RunEvaluation(ulong tickCounter, CleanupType type)
+		{
+			if (InvalidEvaluation(tickCounter) || !ValidPass()) return;
+			switch (type)
+			{
+				case CleanupType.Debris:
+					if (_gridType != GridType.Debris) return;
 					RunDebrisCleanup();
-			
-			if (tickCounter == _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute) + 10 && !_hasPlayerSmallOwner)
-				RunStandardCleanup();
-
-			if (tickCounter == _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute) + 20 && !_hasPlayerSmallOwner)
-				RunAggressiveCleanup();
-			
-			if (tickCounter != _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute) + 30 
-			    || !_hasPlayerSmallOwner 
-			    || !UserSettings.UseSuperAggressiveCleanup) return;
-			RunSuperAggressiveCleanup();
+					break;
+				case CleanupType.Standard:
+					if (_hasPlayerSmallOwner) return;
+					RunStandardCleanup();
+					break;
+				case CleanupType.Aggressive:
+					if (_hasPlayerSmallOwner) return;
+					RunAggressiveCleanup();
+					break;
+				case CleanupType.SuperAggressive:
+					if (!_hasPlayerSmallOwner || !UserSettings.UseSuperAggressiveCleanup) return;
+					RunSuperAggressiveCleanup();
+					break;
+				default:
+					break;
+			}
+			WriteToLog("RunEvaluation", $"Pass Results: {_lastPassInformation}", LogType.General);
 		}
 
 		private void RunDebrisCleanup()
 		{
-			if (!AnyPlayersInRange(UserSettings.DebrisCleanupRange))
+			if (AnyPlayersInRange(UserSettings.DebrisCleanupRange))
 			{
-				_lastPassInformation.ConsecutiveStandardHits = 0;
+				_lastPassInformation.ConsecutiveDebrisHits = 0;
+				WriteToLog("RunDebrisCleanup", $"Player in range; resetting.", LogType.General);
 				return;
 			}
-			if (_lastPassInformation.ConsecutiveStandardHits < UserSettings.PassesBeforeDebrisCleanup) return;
+			_lastPassInformation.ConsecutiveDebrisHits++;
+			if (_lastPassInformation.ConsecutiveDebrisHits < UserSettings.PassesBeforeDebrisCleanup) return;
+			WriteToLog("RunDebrisCleanup", $"No player in range; incrementing count.", LogType.General);
 			_closeReason = "Debris";
 			Close();
 		}
 
 		private void RunStandardCleanup()
 		{
-			if (!AnyPlayersInRange(UserSettings.StandardCleanupRange))
+			if (AnyPlayersInRange(UserSettings.StandardCleanupRange))
 			{
 				_lastPassInformation.ConsecutiveStandardHits = 0;
+				WriteToLog("RunStandardCleanup", $"Player in range; resetting.", LogType.General);
 				return;
 			}
+			_lastPassInformation.ConsecutiveStandardHits++;
 			if (_lastPassInformation.ConsecutiveStandardHits < UserSettings.PassesBeforeStandardCleanup) return;
+			WriteToLog("RunStandardCleanup", $"No player in range; incrementing count.", LogType.General);
 			_closeReason = "Standard";
 			Close();
 		}
 
 		private void RunAggressiveCleanup()
 		{
-			if (!AnyPlayersInRange(UserSettings.AggressiveCleanupRange))
+			if (AnyPlayersInRange(UserSettings.AggressiveCleanupRange))
 			{
 				_lastPassInformation.ConsecutiveAggressiveHits = 0;
+				WriteToLog("RunAggressiveCleanup", $"Player in range; resetting.", LogType.General);
 				return;
 			}
+			_lastPassInformation.ConsecutiveAggressiveHits++;
+			WriteToLog("RunAggressiveCleanup", $"No player in range; incrementing count.", LogType.General);
 			if (_lastPassInformation.ConsecutiveAggressiveHits < UserSettings.PassesBeforeAggressiveCleanup) return;
 			_closeReason = "Aggressive";
 			Close();
@@ -182,12 +199,15 @@ namespace Ultraviolet.Thraxus.Models
 
 		private void RunSuperAggressiveCleanup()
 		{
-			if (!AnyPlayersInRange(UserSettings.SuperAggressiveCleanupRange))
+			if (AnyPlayersInRange(UserSettings.SuperAggressiveCleanupRange))
 			{
-				_lastPassInformation.ConsecutiveAggressiveHits = 0;
+				_lastPassInformation.ConsecutiveSuperAggressiveHits = 0;
+				WriteToLog("RunSuperAggressiveCleanup", $"Player in range; resetting.", LogType.General);
 				return;
 			}
-			if (_lastPassInformation.ConsecutiveAggressiveHits < UserSettings.PassesBeforeSuperAggressiveCleanup) return;
+			_lastPassInformation.ConsecutiveSuperAggressiveHits++;
+			WriteToLog("RunSuperAggressiveCleanup", $"No player in range; incrementing count.", LogType.General);
+			if (_lastPassInformation.ConsecutiveSuperAggressiveHits < UserSettings.PassesBeforeSuperAggressiveCleanup) return;
 			_closeReason = "SuperAggressive";
 			Close();
 		}
@@ -207,27 +227,18 @@ namespace Ultraviolet.Thraxus.Models
 			return playerFound;
 		}
 
-		private bool CompareConditionals()
+		private bool ValidPass()
 		{
 			if (LinearVelocity == Vector3.Zero && _lastPassInformation.Position == Position)
-			{
-				_lastPassInformation.ConsecutiveAggressiveHits++;
-				_lastPassInformation.ConsecutiveStandardHits++;
 				return true;
-			}
 
 			if (LinearVelocity == _lastPassInformation.LinearVelocity)
-			{
-				_lastPassInformation.ConsecutiveAggressiveHits++;
-				_lastPassInformation.ConsecutiveStandardHits++;
 				return true;
-			}
 
 			_lastPassInformation.Position = Position;
 			_lastPassInformation.LinearVelocity = LinearVelocity;
-			_lastPassInformation.ConsecutiveAggressiveHits = 0;
-			_lastPassInformation.ConsecutiveStandardHits = 0;
 			_lastPassInformation.BlockCount = BlockCount;
+			_lastPassInformation.ResetAll();
 			return false;
 		}
 
@@ -303,14 +314,31 @@ namespace Ultraviolet.Thraxus.Models
 	{
 		public Vector3 LinearVelocity;
 		public Vector3D Position;
-		public int ConsecutiveAggressiveHits;
+		public int ConsecutiveDebrisHits;
 		public int ConsecutiveStandardHits;
+		public int ConsecutiveAggressiveHits;
+		public int ConsecutiveSuperAggressiveHits;
 		public int BlockCount;
+		
+		public void ResetAll()
+		{
+			ConsecutiveDebrisHits = 0;
+			ConsecutiveStandardHits = 0;
+			ConsecutiveAggressiveHits = 0;
+			ConsecutiveSuperAggressiveHits = 0;
+		}
 
 		public override string ToString()
 		{
-			return $"Linear Velocity: {LinearVelocity} | Position: {Position} | Consecutive Standard Hits: {ConsecutiveStandardHits} | Consecutive Aggressive Hits: {ConsecutiveAggressiveHits} | Block Count: {BlockCount}";
+			return $"Linear Velocity: {LinearVelocity} | Position: {Position} | Debris: {ConsecutiveDebrisHits} | Standard: {ConsecutiveStandardHits} | Aggressive: {ConsecutiveAggressiveHits} | Super Aggressive: {ConsecutiveSuperAggressiveHits} | Block Count: {BlockCount}";
 		}
 	}
 
+	public enum CleanupType
+	{
+		Debris, 
+		Standard,
+		Aggressive,
+		SuperAggressive
+	}
 }

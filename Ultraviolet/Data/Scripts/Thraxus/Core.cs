@@ -6,6 +6,7 @@ using Ultraviolet.Thraxus.Common.BaseClasses;
 using Ultraviolet.Thraxus.Common.DataTypes;
 using Ultraviolet.Thraxus.Common.Settings;
 using Ultraviolet.Thraxus.Models;
+using Ultraviolet.Thraxus.Settings;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.ModAPI;
@@ -102,22 +103,37 @@ namespace Ultraviolet.Thraxus
 		public override void UpdateBeforeSimulation()
 		{
 			base.UpdateBeforeSimulation();
+			if (UserSettings.IgnoreCleanupWhenNoPlayersOnline && MyAPIGateway.Players.Count == 0) return;
 			_tickCounter++;
 			if (_tickCounter % GeneralSettings.TicksPerMinute == 0)
-				TriggerUpdate();
+				TriggerUpdate(1);
 			if (_tickCounter % GeneralSettings.TicksPerMinute == 10)
-				TriggerUpdate();
+				TriggerUpdate(2);
 			if (_tickCounter % GeneralSettings.TicksPerMinute == 20)
-				TriggerUpdate();
+				TriggerUpdate(3);
 			if (_tickCounter % GeneralSettings.TicksPerMinute == 30)
-				TriggerUpdate();
+				TriggerUpdate(4);
 		}
 
-		private void TriggerUpdate()
+		private void TriggerUpdate(int which)
 		{
 			foreach (KeyValuePair<long, EntityModel> model in _entityModels)
 			{
-				model.Value.RunEvaluation(_tickCounter);
+				switch (which)
+				{
+					case 1:
+						model.Value.RunEvaluation(_tickCounter, CleanupType.Debris);
+						break;
+					case 2:
+						model.Value.RunEvaluation(_tickCounter, CleanupType.Standard);
+						break;
+					case 3:
+						model.Value.RunEvaluation(_tickCounter, CleanupType.Aggressive);
+						break;
+					case 4:
+						model.Value.RunEvaluation(_tickCounter, CleanupType.SuperAggressive);
+						break;
+				}
 			}
 		}
 	}

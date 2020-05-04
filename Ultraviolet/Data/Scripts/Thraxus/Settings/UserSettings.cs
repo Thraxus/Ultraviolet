@@ -56,5 +56,10 @@
 		/// How many blocks does a grid need to consist of before it's not considered debris
 		/// </summary>
 		public static int DebrisBlockCountThreshold = 6;
+
+		/// <summary>
+		/// Stops this mod from running when no players are online
+		/// </summary>
+		public static bool IgnoreCleanupWhenNoPlayersOnline = false;
 	}
 }
