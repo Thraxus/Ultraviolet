@@ -115,7 +115,7 @@ namespace Ultraviolet.Thraxus.Models
 			_thisCubeGrid.OnBlockAdded -= BlockCountChanged;
 			_thisCubeGrid.OnBlockRemoved -= BlockCountChanged;
 			_thisCubeGrid.OnGridSplit -= GridSplit;
-			WriteToLog($"Close", $"Oh, bye! {_closeReason} | {BlockCount} | {_ownerType} | {_gridType} | {_lastPassInformation}", LogType.General);
+			WriteToLog($"Close", $"Oh, bye! {_closeReason} | {_ownerType} | {_gridType} | {_lastPassInformation}", LogType.General);
 			OnClose?.Invoke(ThisId);
 			_thisCubeGrid.Close();
 		}
@@ -147,7 +147,7 @@ namespace Ultraviolet.Thraxus.Models
 					RunStandardCleanup();
 					break;
 				case CleanupType.Aggressive:
-					if (_hasPlayerSmallOwner) break;
+					if (_hasPlayerSmallOwner || !UserSettings.UseAggressiveCleanup) break;
 					RunAggressiveCleanup();
 					break;
 				case CleanupType.SuperAggressive:
@@ -174,11 +174,18 @@ namespace Ultraviolet.Thraxus.Models
 
 		private void RunStandardCleanup()
 		{
-			if (AnyPlayersInRange(UserSettings.StandardCleanupRange))
+			int range =
+				(_lastPassInformation.PrefabInfo.IsNull ||
+				 _lastPassInformation.PrefabInfo.PrefabType == PrefabType.CargoShip)
+					? UserSettings.CargoStandardCleanupRange
+					: UserSettings.EncounterStandardCleanupRange;
+			
+			if (AnyPlayersInRange(range))
 			{
 				_lastPassInformation.ConsecutiveStandardHits = 0;
 				return;
 			}
+
 			_lastPassInformation.ConsecutiveStandardHits++;
 			if (_lastPassInformation.ConsecutiveStandardHits < UserSettings.PassesBeforeStandardCleanup) return;
 			_closeReason = CleanupType.Standard;
@@ -187,7 +194,13 @@ namespace Ultraviolet.Thraxus.Models
 
 		private void RunAggressiveCleanup()
 		{
-			if (AnyPlayersInRange(UserSettings.AggressiveCleanupRange))
+			int range =
+				(_lastPassInformation.PrefabInfo.IsNull ||
+				 _lastPassInformation.PrefabInfo.PrefabType == PrefabType.CargoShip)
+					? UserSettings.CargoAggressiveCleanupRange
+					: UserSettings.EncounterAggressiveCleanupRange;
+
+			if (AnyPlayersInRange(range))
 			{
 				_lastPassInformation.ConsecutiveAggressiveHits = 0;
 				return;
@@ -200,7 +213,13 @@ namespace Ultraviolet.Thraxus.Models
 
 		private void RunSuperAggressiveCleanup()
 		{
-			if (AnyPlayersInRange(UserSettings.SuperAggressiveCleanupRange))
+			int range =
+				(_lastPassInformation.PrefabInfo.IsNull ||
+				 _lastPassInformation.PrefabInfo.PrefabType == PrefabType.CargoShip)
+					? UserSettings.CargoSuperAggressiveCleanupRange
+					: UserSettings.EncounterSuperAggressiveCleanupRange;
+
+			if (AnyPlayersInRange(range))
 			{
 				_lastPassInformation.ConsecutiveSuperAggressiveHits = 0;
 				return;

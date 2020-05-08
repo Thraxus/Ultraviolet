@@ -3,19 +3,44 @@
 	public static class UserSettings
 	{
 		/// <summary>
+		/// Set this to false to stop using Aggressive Cleanup rules (shorter distance, more hits required)
+		/// </summary>
+		public static bool UseAggressiveCleanup = true;
+
+		/// <summary>
+		/// Set this to false to never cleanup grids partially owned by a player (is on the SmallOwners List, not BigOwner)
+		/// </summary>
+		public static bool UseSuperAggressiveCleanup = true;
+
+		/// <summary>
 		/// Range in meters that the cleanup needs for standard rules
 		/// </summary>
-		public static int StandardCleanupRange = 10000;
+		public static int EncounterStandardCleanupRange = 30000;
 
 		/// <summary>
 		/// Range in meters that the cleanup needs for aggressive rules
 		/// </summary>
-		public static int AggressiveCleanupRange = 5000;
+		public static int EncounterAggressiveCleanupRange = 20000;
 
 		/// <summary>
 		/// Range in meters that the cleanup needs for super aggressive rules
 		/// </summary>
-		public static int SuperAggressiveCleanupRange = 10000;
+		public static int EncounterSuperAggressiveCleanupRange = 10000;
+
+		/// <summary>
+		/// Range in meters that the cleanup needs for standard rules
+		/// </summary>
+		public static int CargoStandardCleanupRange = 10000;
+
+		/// <summary>
+		/// Range in meters that the cleanup needs for aggressive rules
+		/// </summary>
+		public static int CargoAggressiveCleanupRange = 5000;
+
+		/// <summary>
+		/// Range in meters that the cleanup needs for super aggressive rules
+		/// </summary>
+		public static int CargoSuperAggressiveCleanupRange = 10000;
 
 		/// <summary>
 		/// Range in meters that debris will be cleaned up
@@ -41,11 +66,6 @@
 		/// How many identical passes must a grid have before cleanup cleans it up 
 		/// </summary>
 		public static int PassesBeforeAggressiveCleanup = 6;
-
-		/// <summary>
-		/// Set this to false to never cleanup grids partially owned by a player (is on the SmallOwners List, not BigOwner)
-		/// </summary>
-		public static bool UseSuperAggressiveCleanup = true;
 
 		/// <summary>
 		/// This is only run when a player owns some small portion of a NPC grid (is on the SmallOwners List)

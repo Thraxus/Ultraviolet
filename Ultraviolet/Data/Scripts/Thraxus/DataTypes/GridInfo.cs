@@ -24,7 +24,7 @@ namespace Ultraviolet.Thraxus.DataTypes
 
 		public override string ToString()
 		{
-			return $"Debris: {ConsecutiveDebrisHits} | Standard: {ConsecutiveStandardHits} | Aggressive: {ConsecutiveAggressiveHits} | Super Aggressive: {ConsecutiveSuperAggressiveHits}";
+			return $"Debris: {ConsecutiveDebrisHits} | Standard: {ConsecutiveStandardHits} | Aggressive: {ConsecutiveAggressiveHits} | Super Aggressive: {ConsecutiveSuperAggressiveHits} | PrefabInfo: {PrefabInfo}";
 		}
 	}
 }
