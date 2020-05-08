@@ -5,8 +5,10 @@ using Sandbox.ModAPI;
 using Ultraviolet.Thraxus.Common.BaseClasses;
 using Ultraviolet.Thraxus.Common.DataTypes;
 using Ultraviolet.Thraxus.Common.Settings;
+using Ultraviolet.Thraxus.DataTypes;
 using Ultraviolet.Thraxus.Models;
 using Ultraviolet.Thraxus.Settings;
+using Ultraviolet.Thraxus.Utilities;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.ModAPI;
@@ -54,6 +56,8 @@ namespace Ultraviolet.Thraxus
 			WriteToLog("LateSetup", $"TotalPCU: {MyAPIGateway.Session.SessionSettings.TotalPCU}", LogType.General);
 			foreach (MyObjectBuilder_Checkpoint.ModItem mod in MyAPIGateway.Session.Mods)
 				WriteToLog("LateSetup", $"Mod: {mod}", LogType.General);
+			MyAPIGateway.Parallel.StartBackground(Definitions.Initialize);
+			//Definitions.Initialize();
 		}
 
 		protected override void Unload()

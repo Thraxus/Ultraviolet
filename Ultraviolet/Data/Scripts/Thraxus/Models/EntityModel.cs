@@ -6,7 +6,9 @@ using Ultraviolet.Thraxus.Common.BaseClasses;
 using Ultraviolet.Thraxus.Common.DataTypes;
 using Ultraviolet.Thraxus.Common.Settings;
 using Ultraviolet.Thraxus.Common.Utilities.Statics;
+using Ultraviolet.Thraxus.DataTypes;
 using Ultraviolet.Thraxus.Settings;
+using Ultraviolet.Thraxus.Utilities;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
@@ -44,17 +46,17 @@ namespace Ultraviolet.Thraxus.Models
 		///		No players within default debris radius
 		///		Must be fully NPC owned or no owner
 		/// </summary>
-		
+
 		public event Action<long> OnClose;
 
 		private readonly GridInfo _lastPassInformation;
 
 		private GridOwnerType _ownerType;
-		
+
 		private bool _hasPlayerSmallOwner;
 
 		private bool _isClosed;
-		
+
 		private Vector3 LinearVelocity => _thisCubeGrid.Physics?.LinearVelocity ?? Vector3.Zero;
 
 		private Vector3D Position => _thisMyCubeGrid.GetPosition();
@@ -70,17 +72,17 @@ namespace Ultraviolet.Thraxus.Models
 		private readonly ulong _firstSeenTick;
 
 		private List<MyEntity> _entitiesInRange = new List<MyEntity>();
-		private List<IMyPlayer> _players = new List<IMyPlayer>();
+		private readonly List<IMyPlayer> _players = new List<IMyPlayer>();
 
 		private int BlockCount => _thisCubeGrid.CubeBlocks.Count;
 
 		private CleanupType _closeReason;
-		
+
 		public EntityModel(IMyEntity thisEntity, ulong tick)
 		{
 			_firstSeenTick = tick;
-			_thisCubeGrid = (MyCubeGrid) thisEntity;
-			_thisMyCubeGrid = (IMyCubeGrid) thisEntity;
+			_thisCubeGrid = (MyCubeGrid)thisEntity;
+			_thisMyCubeGrid = (IMyCubeGrid)thisEntity;
 			ThisId = thisEntity.EntityId;
 			base.Id = ThisId.ToString();
 			_thisCubeGrid.OnClose += Close;
@@ -88,14 +90,19 @@ namespace Ultraviolet.Thraxus.Models
 			_thisCubeGrid.OnBlockAdded += BlockCountChanged;
 			_thisCubeGrid.OnBlockRemoved += BlockCountChanged;
 			_thisCubeGrid.OnGridSplit += GridSplit;
-			_lastPassInformation = new GridInfo() { LinearVelocity = LinearVelocity, Position = Position, BlockCount = BlockCount};
+			_lastPassInformation = new GridInfo() { LinearVelocity = LinearVelocity, Position = Position, BlockCount = BlockCount };
 			_lastPassInformation.ResetAll();
+			if (string.IsNullOrEmpty(_thisCubeGrid.DisplayName)) return;
+			if (!EemStationFix.EemStations.Contains(_thisCubeGrid.DisplayName)) return;
+			if (_thisMyCubeGrid.Physics == null || _thisMyCubeGrid.IsStatic) return;
+			_thisMyCubeGrid.Physics.LinearVelocity = Vector3.Zero;
+			_thisCubeGrid.ConvertToStatic();
 		}
 
 		public void Initialize()
 		{
 			GridEvaluation();
-			WriteToLog($"Initialize", $"Oh, hi! {BlockCount} | {_ownerType} | {_gridType}", LogType.General);
+			WriteToLog($"Initialize", $"Oh, hi! {BlockCount} | {_ownerType} | {_gridType} | {_thisCubeGrid.DisplayName}", LogType.General);
 		}
 
 		public void Close()
@@ -237,6 +244,13 @@ namespace Ultraviolet.Thraxus.Models
 
 		private bool ValidPass()
 		{
+			if (!_lastPassInformation.PrefabInfoObtained)
+			{
+				_lastPassInformation.PrefabInfo = Definitions.GetPrefabInfo(_thisCubeGrid.DisplayNameText);
+				_lastPassInformation.PrefabInfoObtained = true;
+				GridEvaluation();
+			}
+
 			if (LinearVelocity == Vector3.Zero && _lastPassInformation.Position == Position)
 				return true;
 
@@ -254,7 +268,7 @@ namespace Ultraviolet.Thraxus.Models
 		{
 			GridEvaluation();
 		}
-		
+
 		private void GridSplit(MyCubeGrid unused, MyCubeGrid alsoUnused)
 		{
 			GridEvaluation();
@@ -316,37 +330,5 @@ namespace Ultraviolet.Thraxus.Models
 			}
 			_gridType = GridType.Ship;
 		}
-	}
-
-	public class GridInfo
-	{
-		public Vector3 LinearVelocity;
-		public Vector3D Position;
-		public int ConsecutiveDebrisHits;
-		public int ConsecutiveStandardHits;
-		public int ConsecutiveAggressiveHits;
-		public int ConsecutiveSuperAggressiveHits;
-		public int BlockCount;
-		
-		public void ResetAll()
-		{
-			ConsecutiveDebrisHits = 0;
-			ConsecutiveStandardHits = 0;
-			ConsecutiveAggressiveHits = 0;
-			ConsecutiveSuperAggressiveHits = 0;
-		}
-
-		public override string ToString()
-		{
-			return $"Debris: {ConsecutiveDebrisHits} | Standard: {ConsecutiveStandardHits} | Aggressive: {ConsecutiveAggressiveHits} | Super Aggressive: {ConsecutiveSuperAggressiveHits}";
-		}
-	}
-
-	public enum CleanupType
-	{
-		Debris, 
-		Standard,
-		Aggressive,
-		SuperAggressive
 	}
 }

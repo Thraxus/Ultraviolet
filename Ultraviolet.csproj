@@ -184,8 +184,13 @@
     <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\UserConfiguration\SaveConfig.cs" />
     <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\UserConfiguration\UserConfiguration.cs" />
     <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Core.cs" />
+    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\DataTypes\Enums.cs" />
+    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\DataTypes\SpawnGroupPrefab.cs" />
     <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Models\EntityModel.cs" />
+    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\DataTypes\GridInfo.cs" />
+    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Settings\EemStationFix.cs" />
     <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Settings\UserSettings.cs" />
+    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Utilities\Definitions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Ultraviolet\Data\metadata.mod" />
@@ -194,5 +199,6 @@
   <ItemGroup>
     <None Include="Ultraviolet\Data\modinfo.sbmi" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
