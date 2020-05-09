@@ -159,45 +159,46 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\BaseClasses\BaseClientSessionComp.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\BaseClasses\BaseGameLogicComp.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\BaseClasses\BaseServerSessionComp.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\BaseClasses\LogBaseEvent.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\DataTypes\BufferedBinaryReader.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\DataTypes\Enums.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\DataTypes\FastQueue.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\DataTypes\Structs.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Settings\GeneralSettings.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\SaveGame\Load.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\SaveGame\Save.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\Statics\Statics.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\Tools\Logging\Log.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\Tools\Logging\StaticLog.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\Tools\Networking\ChatHandler.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\Tools\Networking\MessageBase.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\Tools\Networking\Messages\ExampleMessage.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\Tools\Networking\Messaging.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\Tools\OnScreenDisplay\QuestlogDetail.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\Tools\OnScreenDisplay\QuestScreen.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\Tools\Profiler.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\UserConfiguration\Load.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\UserConfiguration\SaveConfig.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Common\Utilities\UserConfiguration\UserConfiguration.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Core.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\DataTypes\Enums.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\DataTypes\SpawnGroupPrefab.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Models\EntityModel.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\DataTypes\GridInfo.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Settings\EemStationFix.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Settings\UserSettings.cs" />
-    <Compile Include="Ultraviolet\Data\Scripts\Thraxus\Utilities\Definitions.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\BaseClasses\BaseClientSessionComp.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\BaseClasses\BaseGameLogicComp.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\BaseClasses\BaseServerSessionComp.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\BaseClasses\LogBaseEvent.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\DataTypes\BufferedBinaryReader.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\DataTypes\Enums.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\DataTypes\FastQueue.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\DataTypes\Structs.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Settings\GeneralSettings.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\FileHandlers\Load.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\FileHandlers\Save.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\Statics\Statics.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\Tools\Logging\Log.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\Tools\Logging\StaticLog.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\Tools\Networking\ChatHandler.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\Tools\Networking\MessageBase.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\Tools\Networking\Messages\ExampleMessage.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\Tools\Networking\Messaging.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\Tools\OnScreenDisplay\QuestlogDetail.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\Tools\OnScreenDisplay\QuestScreen.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\Tools\Profiler.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\UserConfiguration\Load.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\UserConfiguration\SaveConfig.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Common\Utilities\UserConfiguration\UserConfiguration.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Core.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\DataTypes\Enums.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\DataTypes\SpawnGroupPrefab.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Models\EntityModel.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\DataTypes\GridInfo.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Settings\EemStationFix.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Settings\Custom\ExportDefaultUserSettings.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Settings\Custom\UserSettings.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak\Utilities\Definitions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Ultraviolet\Data\metadata.mod" />
-    <Content Include="Ultraviolet\Data\Thumb.jpg" />
+    <Content Include="CleanFreak\Data\metadata.mod" />
+    <Content Include="CleanFreak\Data\Thumb.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Ultraviolet\Data\modinfo.sbmi" />
+    <None Include="CleanFreak\Data\modinfo.sbmi" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
