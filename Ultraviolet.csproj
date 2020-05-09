@@ -158,6 +158,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak_Thraxus\Settings\Custom\ConfigConstants.cs" />
+    <Compile Include="CleanFreak\Data\Scripts\CleanFreak_Thraxus\Settings\Custom\ImportCustomUserSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CleanFreak\Data\Scripts\CleanFreak_Thraxus\Common\BaseClasses\BaseClientSessionComp.cs" />
     <Compile Include="CleanFreak\Data\Scripts\CleanFreak_Thraxus\Common\BaseClasses\BaseGameLogicComp.cs" />

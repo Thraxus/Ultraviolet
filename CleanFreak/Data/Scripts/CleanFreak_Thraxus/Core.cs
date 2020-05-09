@@ -33,7 +33,7 @@ namespace Ultraviolet.CleanFreak_Thraxus
 		protected override void EarlySetup()
 		{
 			base.EarlySetup();
-			ExportDefaultUserSettings.Run();
+			ImportCustomUserSettings.Run();
 			Initialize();
 		}
 
@@ -54,11 +54,11 @@ namespace Ultraviolet.CleanFreak_Thraxus
 			WriteToLog("LateSetup", $"Sync: {MyAPIGateway.Session.SessionSettings.SyncDistance}", LogType.General);
 			WriteToLog("LateSetup", $"View: {MyAPIGateway.Session.SessionSettings.ViewDistance}", LogType.General);
 			WriteToLog("LateSetup", $"PiratePCU: {MyAPIGateway.Session.SessionSettings.PiratePCU}", LogType.General);
-			WriteToLog("LateSetup", $"TotalPCU: {MyAPIGateway.Session.SessionSettings.TotalPCU}", LogType.General);
+			WriteToLog("LateSetup", $"PlayerPCU: {MyAPIGateway.Session.SessionSettings.TotalPCU}", LogType.General);
+			PrintConfig();
 			foreach (MyObjectBuilder_Checkpoint.ModItem mod in MyAPIGateway.Session.Mods)
 				WriteToLog("LateSetup", $"Mod: {mod}", LogType.General);
 			MyAPIGateway.Parallel.StartBackground(Definitions.Initialize);
-			//Definitions.Initialize();
 		}
 
 		protected override void Unload()
@@ -140,6 +140,26 @@ namespace Ultraviolet.CleanFreak_Thraxus
 						break;
 				}
 			}
+		}
+
+		private void PrintConfig()
+		{
+			WriteToLog("Config", $"UseAggressiveCleanup: {UserSettings.UseAggressiveCleanup}", LogType.General);
+			WriteToLog("Config", $"UseSuperAggressiveCleanup: {UserSettings.UseSuperAggressiveCleanup}", LogType.General);
+			WriteToLog("Config", $"EncounterStandardCleanupRange: {UserSettings.EncounterStandardCleanupRange}", LogType.General);
+			WriteToLog("Config", $"EncounterAggressiveCleanupRange: {UserSettings.EncounterAggressiveCleanupRange}", LogType.General);
+			WriteToLog("Config", $"EncounterSuperAggressiveCleanupRange: {UserSettings.EncounterSuperAggressiveCleanupRange}", LogType.General);
+			WriteToLog("Config", $"CargoStandardCleanupRange: {UserSettings.CargoStandardCleanupRange}", LogType.General);
+			WriteToLog("Config", $"CargoAggressiveCleanupRange: {UserSettings.CargoAggressiveCleanupRange}", LogType.General);
+			WriteToLog("Config", $"CargoSuperAggressiveCleanupRange: {UserSettings.CargoSuperAggressiveCleanupRange}", LogType.General);
+			WriteToLog("Config", $"DebrisCleanupRange: {UserSettings.DebrisCleanupRange}", LogType.General);
+			WriteToLog("Config", $"NpcCleanupInterval: {UserSettings.NpcCleanupInterval}", LogType.General);
+			WriteToLog("Config", $"PassesBeforeDebrisCleanup: {UserSettings.PassesBeforeDebrisCleanup}", LogType.General);
+			WriteToLog("Config", $"PassesBeforeStandardCleanup: {UserSettings.PassesBeforeStandardCleanup}", LogType.General);
+			WriteToLog("Config", $"PassesBeforeAggressiveCleanup: {UserSettings.PassesBeforeAggressiveCleanup}", LogType.General);
+			WriteToLog("Config", $"PassesBeforeSuperAggressiveCleanup: {UserSettings.PassesBeforeSuperAggressiveCleanup}", LogType.General);
+			WriteToLog("Config", $"DebrisBlockCountThreshold: {UserSettings.DebrisBlockCountThreshold}", LogType.General);
+			WriteToLog("Config", $"IgnoreCleanupWhenNoPlayersOnline: {UserSettings.IgnoreCleanupWhenNoPlayersOnline}", LogType.General);
 		}
 	}
 }

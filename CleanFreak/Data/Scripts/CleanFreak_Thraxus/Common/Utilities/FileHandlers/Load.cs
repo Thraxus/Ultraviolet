@@ -18,13 +18,24 @@ namespace Ultraviolet.CleanFreak_Thraxus.Common.Utilities.FileHandlers
 		}
 
 		public static T ReadFromXmlFile<T>(string fileName, Type type)
-		{
+		{	
 			if (!MyAPIGateway.Utilities.FileExistsInWorldStorage(fileName, type))
 				return default(T);
 
 			using (TextReader textReader = MyAPIGateway.Utilities.ReadFileInWorldStorage(fileName, type))
 			{
 				return MyAPIGateway.Utilities.SerializeFromXML<T>(textReader.ReadToEnd());
+			}
+		}
+
+		public static string ReadFileFromWorldStorage(string fileName, Type type)
+		{
+			if (!MyAPIGateway.Utilities.FileExistsInWorldStorage(fileName, type))
+				return string.Empty;
+
+			using (TextReader textReader = MyAPIGateway.Utilities.ReadFileInWorldStorage(fileName, type))
+			{
+				return textReader.ReadToEnd();
 			}
 		}
 	}

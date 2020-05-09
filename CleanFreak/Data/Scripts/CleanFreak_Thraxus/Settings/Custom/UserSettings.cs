@@ -68,7 +68,7 @@
 		/// <summary>
 		/// Minutes before the cleanup routine will kick in 
 		/// </summary>
-		public static ulong NpcCleanupInterval = 6;
+		public static int NpcCleanupInterval = 6;
 		public const string NpcCleanupIntervalSettingName = "NpcCleanupInterval";
 		public const string NpcCleanupIntervalDescription = "Valid Setting: [Whole Number] Default: 6 - Minutes before the cleanup routine will kick in";
 

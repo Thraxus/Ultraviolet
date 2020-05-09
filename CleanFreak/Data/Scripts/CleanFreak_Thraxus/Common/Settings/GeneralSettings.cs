@@ -5,7 +5,7 @@ namespace Ultraviolet.CleanFreak_Thraxus.Common.Settings
 {
 	public static class GeneralSettings
 	{
-		public const string ConfigFileName = "CleanFreak.ini";
+		
 		public const string SaveFileName = "MyCustomSave.file";
 		public const string SandboxVariableName = "MyCustomSandboxVariableName";
 

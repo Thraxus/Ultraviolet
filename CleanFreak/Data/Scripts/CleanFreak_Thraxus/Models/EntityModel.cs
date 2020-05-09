@@ -102,7 +102,7 @@ namespace Ultraviolet.CleanFreak_Thraxus.Models
 
 		public void Initialize()
 		{
-			WriteToLog($"Initialize", $"Oh, hi! {_thisCubeGrid.DisplayName} | I have {BlockCount} block(s)!", LogType.General);
+			WriteToLog($"Initialize", $"Oh, hi! {_thisCubeGrid.DisplayName} | I have {BlockCount} block(s) worth {_thisCubeGrid.BlocksPCU} PCU!", LogType.General);
 		}
 
 		public void Close()
@@ -145,7 +145,7 @@ namespace Ultraviolet.CleanFreak_Thraxus.Models
 			}
 			if (_ownerType == GridOwnerType.Player) return true;
 			if (_gridType == GridType.Station || _gridType == GridType.Projection || _gridType == GridType.SubGrid) return true;
-			return tickCounter < _firstSeenTick + (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute);
+			return tickCounter < _firstSeenTick + (ulong) (UserSettings.NpcCleanupInterval * GeneralSettings.TicksPerMinute);
 		}
 
 		private bool ValidPass()
