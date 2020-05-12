@@ -294,16 +294,25 @@ namespace Ultraviolet.CleanFreak_Thraxus.Models
 
 		private IMyPlayer GetPlayer(long entityId)
 		{
-			IMyPlayer player = null;
-			_players.Clear();
-			MyAPIGateway.Players.GetPlayers(_players);
-			foreach (IMyPlayer x in _players)
+			try
 			{
-				if (x.Character.EntityId != entityId) continue;
-				player = x;
-				break;
+				IMyPlayer player = null;
+				_players.Clear();
+				MyAPIGateway.Players.GetPlayers(_players);
+				foreach (IMyPlayer x in _players)
+				{
+					if (x.Character == null) continue;
+					if (x.Character.EntityId != entityId) continue;
+					player = x;
+					break;
+				}
+				return player;
 			}
-			return player;
+			catch (Exception e)
+			{
+				WriteToLog("GetPlayer", $"Exception! {e}", LogType.Exception);
+				return null;
+			}
 		}
 
 		private void BlockCountChanged(IMySlimBlock unused)
