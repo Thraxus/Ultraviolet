@@ -69,6 +69,9 @@ namespace CleanFreak.Settings.Custom
 
             MyIni.Set(ConfigConstants.SectionName, UserSettings.IgnoreGridVelocityCheckSettingName, UserSettings.IgnoreGridVelocityCheck);
             MyIni.SetComment(ConfigConstants.SectionName, UserSettings.IgnoreGridVelocityCheckSettingName, UserSettings.IgnoreGridVelocityCheckDescription);
+
+            MyIni.Set(ConfigConstants.SectionName, UserSettings.VerboseDebugLoggingSettingName, UserSettings.VerboseDebugLogging);
+            MyIni.SetComment(ConfigConstants.SectionName, UserSettings.VerboseDebugLoggingSettingName, UserSettings.VerboseDebugLoggingDescription);
         }
 
 		private static void Export()

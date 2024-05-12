@@ -160,6 +160,8 @@ namespace CleanFreak
 			WriteToLog("Config", $"PassesBeforeSuperAggressiveCleanup: {UserSettings.PassesBeforeSuperAggressiveCleanup}", LogType.General);
 			WriteToLog("Config", $"DebrisBlockCountThreshold: {UserSettings.DebrisBlockCountThreshold}", LogType.General);
 			WriteToLog("Config", $"IgnoreCleanupWhenNoPlayersOnline: {UserSettings.IgnoreCleanupWhenNoPlayersOnline}", LogType.General);
-		}
+            WriteToLog("Config", $"IgnoreGridVelocityCheck: {UserSettings.IgnoreGridVelocityCheck}", LogType.General);
+            WriteToLog("Config", $"VerboseDebugLogging: {UserSettings.VerboseDebugLogging}", LogType.General);
+        }
 	}
 }

@@ -37,7 +37,8 @@ namespace CleanFreak.Settings.Custom
 				return;
 			}
 			ParseConfig();
-		}
+            ExportDefaultUserSettings.Run();
+        }
 
 		private static void ParseConfig()
 		{
@@ -60,6 +61,7 @@ namespace CleanFreak.Settings.Custom
 			
 			UserSettings.IgnoreCleanupWhenNoPlayersOnline = MyIni.Get(ConfigConstants.SectionName, UserSettings.IgnoreCleanupWhenNoPlayersOnlineSettingName).ToBoolean(UserSettings.IgnoreCleanupWhenNoPlayersOnline);
 			UserSettings.IgnoreGridVelocityCheck = MyIni.Get(ConfigConstants.SectionName, UserSettings.IgnoreGridVelocityCheckSettingName).ToBoolean(UserSettings.IgnoreGridVelocityCheck);
+			UserSettings.VerboseDebugLogging = MyIni.Get(ConfigConstants.SectionName, UserSettings.VerboseDebugLoggingSettingName).ToBoolean(UserSettings.VerboseDebugLogging);
 
             UserSettings.EncounterStandardCleanupRange = Math.Abs(UserSettings.EncounterStandardCleanupRange);
 			UserSettings.EncounterAggressiveCleanupRange = Math.Abs(UserSettings.EncounterAggressiveCleanupRange);

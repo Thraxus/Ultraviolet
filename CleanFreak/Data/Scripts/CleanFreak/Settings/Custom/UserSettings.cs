@@ -3,18 +3,18 @@
 	public static class UserSettings
 	{
 		/// <summary>
-		/// Set this to false to stop using Aggressive Cleanup rules (shorter distance, more hits required)
+		/// Set this false to stop using Aggressive Cleanup rules (shorter distance, more hits required)
 		/// </summary>
 		public static bool UseAggressiveCleanup = true;
 		public const string UseAggressiveCleanupSettingName = "UseAggressiveCleanup";
-		public const string UseAggressiveCleanupDescription = "Valid Setting: [True/False] Default: True - Set this to false to stop using Aggressive Cleanup rules (shorter distance, more hits required)";
+		public const string UseAggressiveCleanupDescription = "Valid Setting: [True/False] Default: True - Set this false to stop using Aggressive Cleanup rules (shorter distance, more hits required)";
 
 		/// <summary>
-		/// Set this to false to never cleanup grids partially owned by a player (is on the SmallOwners List, not BigOwner)
+		/// Set this false to never cleanup grids partially owned by a player (is on the SmallOwners List, not BigOwner)
 		/// </summary>
 		public static bool UseSuperAggressiveCleanup = true;
 		public const string UseSuperAggressiveCleanupSettingName = "UseSuperAggressiveCleanup";
-		public const string UseSuperAggressiveCleanupDescription = "Valid Setting: [True/False] Default: True - Set this to false to never cleanup grids partially owned by a player (is on the SmallOwners List, not BigOwner)";
+		public const string UseSuperAggressiveCleanupDescription = "Valid Setting: [True/False] Default: True - Set this false to never cleanup grids partially owned by a player (is on the SmallOwners List, not BigOwner)";
 
 		/// <summary>
 		/// Range in meters that the cleanup needs for standard rules
@@ -115,10 +115,17 @@
 		public const string IgnoreCleanupWhenNoPlayersOnlineDescription = "Valid Setting: [True/False] Default: False - Stops this mod from running when no players are online";
 
         /// <summary>
-        /// Stops this mod from running when no players are online
+        /// Stops the mod from performing a velocity check on a grid.
         /// </summary>
         public static bool IgnoreGridVelocityCheck = false;
         public const string IgnoreGridVelocityCheckSettingName = "IgnoreGridVelocityCheck";
         public const string IgnoreGridVelocityCheckDescription = "Valid Setting: [True/False] Default: False - Stops a grids velocity from being considered when running the deletion checks";
+
+        /// <summary>
+        /// Adds verbose logging to the mods log file (found in Global Storage \SpaceEngineers\Storage\2085051314.sbm_CleanFreak)
+        /// </summary>
+        public static bool VerboseDebugLogging = false;
+        public const string VerboseDebugLoggingSettingName = "VerboseDebugLogging";
+        public const string VerboseDebugLoggingDescription = "Valid Setting: [True/False] Default: False - Adds verbose logging to the mods log file (found in Global Storage \\SpaceEngineers\\Storage\\2085051314.sbm_CleanFreak)";
     }
 }

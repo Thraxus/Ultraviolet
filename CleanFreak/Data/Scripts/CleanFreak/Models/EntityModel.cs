@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using CleanFreak.Common.BaseClasses;
 using CleanFreak.Common.DataTypes;
 using CleanFreak.Common.Settings;
@@ -9,6 +10,7 @@ using CleanFreak.Settings;
 using CleanFreak.Settings.Custom;
 using CleanFreak.Utilities;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Character;
 using Sandbox.ModAPI;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
@@ -52,6 +54,8 @@ namespace CleanFreak.Models
 
 		private readonly GridInfo _lastPassInformation;
 
+        private readonly StringBuilder _logOutput = new StringBuilder();
+
 		private GridOwnerType _ownerType;
 
 		private bool _hasPlayerSmallOwner;
@@ -85,7 +89,7 @@ namespace CleanFreak.Models
 			_thisCubeGrid = (MyCubeGrid)thisEntity;
 			_thisMyCubeGrid = (IMyCubeGrid)thisEntity;
 			ThisId = thisEntity.EntityId;
-			base.Id = ThisId.ToString();
+            base.Id = $"{ThisId:D20}";
 			_thisCubeGrid.OnClose += Close;
 			_thisCubeGrid.OnBlockOwnershipChanged += OwnershipChanged;
 			_thisCubeGrid.OnBlockAdded += BlockCountChanged;
@@ -188,10 +192,22 @@ namespace CleanFreak.Models
 		}
 
 		public void RunEvaluation(ulong tickCounter, CleanupType type)
-		{
+        {
 			if (InvalidEvaluation(tickCounter)) return;
 			if (!ValidPass()) return;
-			switch (type)
+
+            if (UserSettings.VerboseDebugLogging)
+            {
+                _logOutput.Clear();
+                _logOutput.AppendLine();
+                _logOutput.AppendFormat($"Verbose Debug for {_thisCubeGrid.DisplayName}");
+                _logOutput.AppendLine();
+                _logOutput.AppendFormat($"Tick {tickCounter:D10}: Running {type} evaluation.");
+                _logOutput.AppendLine();
+                DebugPrintPlayers();
+            }
+
+            switch (type)
 			{
 				case CleanupType.Debris:
 					if (_gridType != GridType.Debris) break;
@@ -213,7 +229,13 @@ namespace CleanFreak.Models
                 default:
                     break;
 			}
-		}
+
+            if (UserSettings.VerboseDebugLogging)
+            {
+                _logOutput.AppendFormat("");
+                WriteToLog("RunEvaluation", _logOutput.ToString(), LogType.General);
+            }
+        }
 
 		private void RunDebrisCleanup()
 		{
@@ -223,7 +245,12 @@ namespace CleanFreak.Models
 				return;
 			}
 			_lastPassInformation.ConsecutiveDebrisHits++;
-			if (_lastPassInformation.ConsecutiveDebrisHits < UserSettings.PassesBeforeDebrisCleanup) return;
+            if (UserSettings.VerboseDebugLogging)
+            {
+                _logOutput.AppendFormat("{0,4}Hit! [{1}] for range {2:D5}", " ", _lastPassInformation.ConsecutiveDebrisHits, UserSettings.DebrisCleanupRange);
+                _logOutput.AppendLine();
+            }
+            if (_lastPassInformation.ConsecutiveDebrisHits < UserSettings.PassesBeforeDebrisCleanup) return;
 			_closeReason = CleanupType.Debris;
 			NukeTheSubs();
 		}
@@ -243,7 +270,12 @@ namespace CleanFreak.Models
 			}
 
 			_lastPassInformation.ConsecutiveStandardHits++;
-			if (_lastPassInformation.ConsecutiveStandardHits < UserSettings.PassesBeforeStandardCleanup) return;
+            if (UserSettings.VerboseDebugLogging)
+            {
+                _logOutput.AppendFormat("{0,4}Hit! [{1}] for range {2:D5}", " ", _lastPassInformation.ConsecutiveStandardHits, range);
+                _logOutput.AppendLine();
+            }
+            if (_lastPassInformation.ConsecutiveStandardHits < UserSettings.PassesBeforeStandardCleanup) return;
 			_closeReason = CleanupType.Standard;
 			NukeTheSubs();
 		}
@@ -262,7 +294,12 @@ namespace CleanFreak.Models
 				return;
 			}
 			_lastPassInformation.ConsecutiveAggressiveHits++;
-			if (_lastPassInformation.ConsecutiveAggressiveHits < UserSettings.PassesBeforeAggressiveCleanup) return;
+            if (UserSettings.VerboseDebugLogging)
+            {
+                _logOutput.AppendFormat("{0,4}Hit! [{1}] for range {2:D5}", " ", _lastPassInformation.ConsecutiveAggressiveHits, range);
+                _logOutput.AppendLine();
+            }
+            if (_lastPassInformation.ConsecutiveAggressiveHits < UserSettings.PassesBeforeAggressiveCleanup) return;
 			_closeReason = CleanupType.Aggressive;
 			NukeTheSubs();
 		}
@@ -280,51 +317,63 @@ namespace CleanFreak.Models
 				_lastPassInformation.ConsecutiveSuperAggressiveHits = 0;
 				return;
 			}
-			_lastPassInformation.ConsecutiveSuperAggressiveHits++;
-			if (_lastPassInformation.ConsecutiveSuperAggressiveHits < UserSettings.PassesBeforeSuperAggressiveCleanup) return;
+            _lastPassInformation.ConsecutiveSuperAggressiveHits++;
+            if (UserSettings.VerboseDebugLogging)
+            {
+                _logOutput.AppendFormat("{0,4}Hit! [{1}] for range {2:D5}", " ", _lastPassInformation.ConsecutiveSuperAggressiveHits, range);
+                _logOutput.AppendLine();
+            }
+            if (_lastPassInformation.ConsecutiveSuperAggressiveHits < UserSettings.PassesBeforeSuperAggressiveCleanup) return;
 			_closeReason = CleanupType.SuperAggressive;
 			NukeTheSubs();
 		}
 
-		private bool AnyPlayersInRange(int range)
-		{
-			_entitiesInRange.Clear();
-			_entitiesInRange = Statics.DetectTopMostEntitiesInSphere(Position, range) as List<MyEntity>;
-			if (_entitiesInRange == null) return false;
-			bool playerFound = false;
-			foreach (IMyEntity ent in _entitiesInRange)
-			{
-				IMyPlayer player = GetPlayer(ent.EntityId);
-				if (player == null) continue;
-				if (!Statics.ValidPlayer(player.IdentityId)) continue;
-				playerFound = true;
-				break;
-			}
-			return playerFound;
-		}
+        private bool AnyPlayersInRange(int range)
+        {
+            //WriteToLog("AnyPlayersInRange", $"Checking range {range:D5} for [{ThisId:D20}] {_thisCubeGrid.DisplayName} at [{Position}]", LogType.General);
+            _entitiesInRange.Clear();
+            _entitiesInRange = Statics.DetectTopMostEntitiesInSphere(Position, range) as List<MyEntity>;
+            if (_entitiesInRange == null) return false;
 
-		private IMyPlayer GetPlayer(long entityId)
-		{
-			try
-			{
-				IMyPlayer player = null;
-				_players.Clear();
-				MyAPIGateway.Players.GetPlayers(_players);
-				foreach (IMyPlayer x in _players)
-				{
-					if (x.Character == null) continue;
-					if (x.Character.EntityId != entityId) continue;
-					player = x;
-					break;
-				}
-				return player;
-			}
-			catch (Exception e)
-			{
-				WriteToLog("GetPlayer", $"Exception! {e}", LogType.Exception);
-				return null;
-			}
-		}
+            _players.Clear();
+            MyAPIGateway.Players.GetPlayers(_players);
+            foreach (var player in _players)
+            {
+                if (player == null || !Statics.ValidPlayer(player.IdentityId))
+                    continue;
+
+                if ((float)Vector3D.Distance(Position, player.GetPosition()) > range)
+                    continue;
+
+                if (UserSettings.VerboseDebugLogging)
+                {
+                    _logOutput.AppendFormat("{0,4}Player found for {1}", " ", _thisCubeGrid.DisplayName); 
+                    _logOutput.AppendLine();
+                }
+                return true;
+            }
+            if (UserSettings.VerboseDebugLogging)
+            {
+                _logOutput.AppendFormat("{0,4}Player NOT found for {1}", " ", _thisCubeGrid.DisplayName);
+                _logOutput.AppendLine();
+            }
+            return false;
+        }
+
+        private void DebugPrintPlayers()
+        {
+            if (!UserSettings.VerboseDebugLogging) return;
+
+            _players.Clear();
+            MyAPIGateway.Players.GetPlayers(_players);
+			_logOutput.AppendFormat("{0,4}Debug Player Information", " ");
+            _logOutput.AppendLine();
+            foreach (var player in _players)
+            {
+                _logOutput.AppendFormat("{0,6}[{1}] [{2}] :: {3:N2}", " ", player.IdentityId, player.DisplayName, (float)Vector3D.Distance(Position, player.GetPosition()));
+                _logOutput.AppendLine();
+            }
+        }
 
 		private void BlockCountChanged(IMySlimBlock unused)
 		{
@@ -346,7 +395,7 @@ namespace CleanFreak.Models
 			if (_gridType == GridType.SubGrid) return;
 			GetOwnerType();
 			GetGridType();
-		}
+		} 
 
 		private void GetOwnerType()
 		{
